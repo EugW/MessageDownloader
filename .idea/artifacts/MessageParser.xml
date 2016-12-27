@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="MessageParser">
+    <output-path>$PROJECT_DIR$/out/artifacts/MessageParser</output-path>
+    <root id="archive" name="MessageParser.jar">
+      <element id="module-output" name="MessageParser" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../API/json-20160810.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../API/sdk-0.3.9.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
