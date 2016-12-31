@@ -67,7 +67,7 @@ class Ext {
             String pr = getUserNameByToken(token) + "@" + token + File.separator + "chats" + File.separator + readed.split(":")[i];
             SaveNewLocal(pr, token, readed.split(":")[i]);
             chat(pr);
-            Thread.sleep(20);
+            Thread.sleep(500);
             i++;
         }
 

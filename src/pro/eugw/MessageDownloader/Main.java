@@ -31,7 +31,7 @@ public class Main {
                 i++;
             }
             System.out.println("ONE TICK FINISHED");
-            Thread.sleep(60000);
+            Thread.sleep(3600000);
         }
     }
 }
