@@ -65,7 +65,6 @@ class Ext {
         Integer i = 0;
         while (i < count) {
             String pr = getUserNameByToken(token) + "@" + token + File.separator + "chats" + File.separator + readed.split(":")[i];
-            System.out.println(readed.split(":")[i]);
             SaveNewLocal(pr, token, readed.split(":")[i]);
             chat(pr);
             Thread.sleep(20);

@@ -29,7 +29,6 @@ class OldExt {
             arr2.put(arr.getJSONObject(i));
             i--;
         }
-        System.out.println(arr2);
         return arr2;
     }
 

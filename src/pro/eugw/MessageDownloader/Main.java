@@ -10,6 +10,7 @@ import static pro.eugw.MessageDownloader.Ext.getChat;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        System.out.println("STARTING");
         File config = new File("config.properties");
         if (!config.exists()) config.createNewFile();
         FileInputStream fis = new FileInputStream(config);
