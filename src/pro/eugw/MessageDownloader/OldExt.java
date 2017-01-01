@@ -11,10 +11,11 @@ import java.util.ArrayList;
 import static pro.eugw.MessageDownloader.Ext.getUserNameById;
 
 class OldExt {
-    private static JSONArray Gget(String token, String id) throws Exception {
+    private static JSONArray Gget(String token, String id, String type) throws Exception {
+        Thread.sleep(250);
         URL url = new URL("https://api.vk.com/method/messages.getHistory" +
                 "?access_token=" + token +
-                "&user_id=" + id +
+                "&" + type + "_id=" + id +
                 "&count=200");
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("GET");
@@ -72,8 +73,8 @@ class OldExt {
         return response;
     }
 
-    static void SaveNewLocal(String path, String token, String id) throws Exception {
-        JSONArray arr = diff(Gget(token, id), file_parse(path));
+    static void SaveNewLocal(String path, String token, String id, String type) throws Exception {
+        JSONArray arr = diff(Gget(token, id, type), file_parse(path));
         File local = new File(path, "local");
         BufferedReader bufferedReader = new BufferedReader(new FileReader(local));
         String json = bufferedReader.readLine();

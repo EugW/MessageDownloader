@@ -5,7 +5,8 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import static pro.eugw.MessageDownloader.Ext.getChat;
+import static pro.eugw.MessageDownloader.Ext.getChats;
+import static pro.eugw.MessageDownloader.Ext.getDialogs;
 import static pro.eugw.MessageDownloader.Ext.getUserNameByToken;
 import static pro.eugw.MessageDownloader.OldExt.SaveNewLocal;
 import static pro.eugw.MessageDownloader.OldExt.chat;
@@ -28,12 +29,21 @@ public class Main {
         }
         Integer i = 0;
         while (i < list.size()) {
-            ArrayList<String> ll = getChat(list.get(i));
-            Integer count = ll.size();
+            ArrayList<String> ld = getDialogs(list.get(i));
+            Integer cd = ld.size();
             Integer i3 = 0;
-            while (i3 < count) {
-                String pr = getUserNameByToken(list.get(i)) + "@" + list.get(i) + File.separator + "chats" + File.separator + ll.get(i3);
-                SaveNewLocal(pr, list.get(i), ll.get(i3));
+            while (i3 < cd) {
+                String pr = getUserNameByToken(list.get(i)) + "@" + list.get(i) + File.separator + "dialogs" + File.separator + ld.get(i3);
+                SaveNewLocal(pr, list.get(i), ld.get(i3).split("@")[0], "user");
+                chat(pr);
+                i3++;
+            }
+            ArrayList<String> lc = getChats(list.get(i));
+            Integer cc = lc.size();
+            i3 = 0;
+            while (i3 < cc){
+                String pr = getUserNameByToken(list.get(i)) + "@" + list.get(i) + File.separator + "chats" + File.separator + lc.get(i3);
+                SaveNewLocal(pr, list.get(i), lc.get(i3).split("@")[0], "chat");
                 chat(pr);
                 i3++;
             }
