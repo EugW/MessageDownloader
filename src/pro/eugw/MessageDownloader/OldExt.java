@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import static pro.eugw.MessageDownloader.Ext.getUserNameById;
 
 class OldExt {
-    private static JSONArray get(String token, String id) throws Exception {
+    private static JSONArray Gget(String token, String id) throws Exception {
         URL url = new URL("https://api.vk.com/method/messages.getHistory" +
                 "?access_token=" + token +
                 "&user_id=" + id +
@@ -33,6 +33,8 @@ class OldExt {
     }
 
     private static JSONArray file_parse(String path) throws Exception {
+        File fol = new File(path);
+        if (!fol.exists()) fol.mkdirs();
         File local = new File(path, "local");
         if (!local.exists()) {
             local.createNewFile();
@@ -71,7 +73,7 @@ class OldExt {
     }
 
     static void SaveNewLocal(String path, String token, String id) throws Exception {
-        JSONArray arr = diff(get(token, id), file_parse(path));
+        JSONArray arr = diff(Gget(token, id), file_parse(path));
         File local = new File(path, "local");
         BufferedReader bufferedReader = new BufferedReader(new FileReader(local));
         String json = bufferedReader.readLine();
@@ -128,7 +130,7 @@ class OldExt {
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
-                File fl = new File(path, "additions" + File.pathSeparator + array.getJSONObject(i).get("mid"));
+                File fl = new File(path, "additions" + File.separator + array.getJSONObject(i).get("mid"));
                 if (!fl.exists()) {
                     fl.createNewFile();
                 }
