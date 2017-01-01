@@ -1,12 +1,16 @@
 package pro.eugw.MessageDownloader;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import static pro.eugw.MessageDownloader.Ext.SaveMsg;
 import static pro.eugw.MessageDownloader.Ext.getChat;
+import static pro.eugw.MessageDownloader.Ext.getUserNameByToken;
+import static pro.eugw.MessageDownloader.OldExt.SaveNewLocal;
+import static pro.eugw.MessageDownloader.OldExt.chat;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -26,7 +30,17 @@ public class Main {
             Integer i = 0;
             while (i < list.size()) {
                 getChat(list.get(i));
-                SaveMsg(list.get(i));
+                BufferedReader br = new BufferedReader(new FileReader(new File(getUserNameByToken(list.get(i)) + "@" + list.get(i) + File.separator + "chats", "count")));
+                String readed = br.readLine();
+                Integer count = readed.split(":").length;
+                Integer i3 = 0;
+                while (i3 < count) {
+                    String pr = getUserNameByToken(list.get(i)) + "@" + list.get(i) + File.separator + "chats" + File.separator + readed.split(":")[i];
+                    SaveNewLocal(pr, list.get(i), readed.split(":")[i]);
+                    chat(pr);
+                    Thread.sleep(500);
+                    i3++;
+                }
                 System.out.println("NEW TOKEN");
                 i++;
             }
