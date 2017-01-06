@@ -5,8 +5,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import static pro.eugw.MessageDownloader.Ext.getChats;
-import static pro.eugw.MessageDownloader.Ext.getDialogs;
+import static pro.eugw.MessageDownloader.Ext.getConversations;
 import static pro.eugw.MessageDownloader.Ext.getUserNameByToken;
 import static pro.eugw.MessageDownloader.OldExt.SaveNewLocal;
 import static pro.eugw.MessageDownloader.OldExt.chat;
@@ -29,7 +28,8 @@ public class Main {
         }
         Integer i = 0;
         while (i < list.size()) {
-            ArrayList<String> ld = getDialogs(list.get(i));
+            ArrayList<ArrayList<String>> arr = getConversations(list.get(i));
+            ArrayList<String> ld = arr.get(0);
             Integer cd = ld.size();
             Integer i3 = 0;
             while (i3 < cd) {
@@ -38,7 +38,7 @@ public class Main {
                 chat(pr);
                 i3++;
             }
-            ArrayList<String> lc = getChats(list.get(i));
+            ArrayList<String> lc = arr.get(1);
             Integer cc = lc.size();
             i3 = 0;
             while (i3 < cc){
