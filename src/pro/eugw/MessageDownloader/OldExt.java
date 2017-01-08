@@ -4,23 +4,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 import static pro.eugw.MessageDownloader.Ext.getUserNameById;
+import static pro.eugw.MessageDownloader.Ext.get;
 
 class OldExt {
-    private static JSONArray Gget(String token, String id, String type) throws Exception {
-        Thread.sleep(250);
-        URL url = new URL("https://api.vk.com/method/messages.getHistory" +
-                "?access_token=" + token +
-                "&" + type + "_id=" + id +
-                "&count=200");
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("GET");
-        BufferedReader rd = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-        String json = rd.readLine();
+    private static JSONArray request_parse(String token, String id, String type) throws Exception {
+        String json = get("https://api.vk.com/method/messages.getHistory?access_token=" + token + "&" + type + "_id=" + id + "&count=200");
         JSONObject obj = new JSONObject(json);
         JSONArray arr = obj.getJSONArray("response");
         arr.remove(0);
@@ -74,7 +65,7 @@ class OldExt {
     }
 
     static void SaveNewLocal(String path, String token, String id, String type) throws Exception {
-        JSONArray arr = diff(Gget(token, id, type), file_parse(path));
+        JSONArray arr = diff(request_parse(token, id, type), file_parse(path));
         File local = new File(path, "local");
         BufferedReader bufferedReader = new BufferedReader(new FileReader(local));
         String json = bufferedReader.readLine();
@@ -99,12 +90,8 @@ class OldExt {
         JSONObject obj = new JSONObject(jst);
         JSONArray array = obj.getJSONArray("local");
         File messages = new File(path, "messages");
-        if (messages.exists()) {
-            messages.delete();
-        }
-        if (!messages.exists()) {
-            messages.createNewFile();
-        }
+        if (messages.exists()) messages.delete();
+        if (!messages.exists()) messages.createNewFile();
         PrintWriter pw = new PrintWriter(messages);
         Integer i = 0;
         while (i < array.length()) {
@@ -112,13 +99,9 @@ class OldExt {
             if (array.getJSONObject(i).has("fwd_messages")) {
                 fwd_messages = true;
                 File dir = new File(path, "additions");
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
+                if (!dir.exists()) dir.mkdirs();
                 File fl = new File(path, "additions" + File.separator + array.getJSONObject(i).get("mid"));
-                if (!fl.exists()) {
-                    fl.createNewFile();
-                }
+                if (!fl.exists()) fl.createNewFile();
                 PrintWriter printWriter = new PrintWriter(fl);
                 printWriter.println(array.getJSONObject(i).get("fwd_messages"));
                 printWriter.flush();
@@ -128,13 +111,9 @@ class OldExt {
             if (array.getJSONObject(i).has("attachment")) {
                 attachment = true;
                 File dir = new File(path, "additions");
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
+                if (!dir.exists()) dir.mkdirs();
                 File fl = new File(path, "additions" + File.separator + array.getJSONObject(i).get("mid"));
-                if (!fl.exists()) {
-                    fl.createNewFile();
-                }
+                if (!fl.exists()) fl.createNewFile();
                 PrintWriter printWriter = new PrintWriter(fl);
                 printWriter.println(array.getJSONObject(i).get("attachment"));
                 printWriter.flush();

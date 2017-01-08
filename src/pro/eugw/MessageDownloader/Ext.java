@@ -19,12 +19,8 @@ class Ext {
         ArrayList<String> list0 = new ArrayList<>();
         ArrayList<String> list1 = new ArrayList<>();
         while (i < arr.length()) {
-            if (!arr.getJSONObject(i).has("chat_id")) {
-                list0.add(arr.getJSONObject(i).get("uid") + "@" + getUserNameById((Integer) arr.getJSONObject(i).get("uid")));
-            }
-            if (arr.getJSONObject(i).has("chat_id")) {
-                list1.add(arr.getJSONObject(i).get("chat_id") + "@" + arr.getJSONObject(i).get("title"));
-            }
+            if (!arr.getJSONObject(i).has("chat_id")) list0.add(arr.getJSONObject(i).get("uid") + "@" + getUserNameById((Integer) arr.getJSONObject(i).get("uid")));
+            if (arr.getJSONObject(i).has("chat_id")) list1.add(arr.getJSONObject(i).get("chat_id") + "@" + arr.getJSONObject(i).get("title"));
             i++;
         }
         ar.add(list0);
@@ -70,13 +66,18 @@ class Ext {
         return properties.getProperty(token);
     }
 
-    private static String get(String kurl) throws Exception {
-        Thread.sleep(250);
-        URL url = new URL(kurl);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("GET");
-        BufferedReader rd;
-        rd = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-        return rd.readLine();
+    static String get(String kurl) throws Exception {
+        while (true) {
+            URL url = new URL(kurl);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            BufferedReader rd;
+            rd = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            String read = rd.readLine();
+            JSONObject obj = new JSONObject(read);
+            if (obj.has("response")) {
+                return read;
+            }
+        }
     }
 }
