@@ -10,7 +10,7 @@ import static pro.eugw.MessageDownloader.Ext.getUserNameById;
 import static pro.eugw.MessageDownloader.Ext.get;
 
 class OldExt {
-    private static JSONArray request_parse(String token, String id, String type) throws Exception {
+    private static JSONArray response_parse(String token, String id, String type) throws Exception {
         String json = get("https://api.vk.com/method/messages.getHistory?access_token=" + token + "&" + type + "_id=" + id + "&count=200");
         JSONObject obj = new JSONObject(json);
         JSONArray arr = obj.getJSONArray("response");
@@ -26,7 +26,8 @@ class OldExt {
 
     private static JSONArray file_parse(String path) throws Exception {
         File fol = new File(path);
-        if (!fol.exists()) fol.mkdirs();
+        if (!fol.exists())
+            fol.mkdirs();
         File local = new File(path, "local");
         if (!local.exists()) {
             local.createNewFile();
@@ -45,37 +46,23 @@ class OldExt {
 
     private static JSONArray diff(JSONArray response, JSONArray local) {
         ArrayList<String> mids = new ArrayList<>();
-        Integer i = 0;
-        while (i < local.length()) {
+        for (Integer i = 0; i < local.length(); i++)
             mids.add(local.getJSONObject(i).get("mid").toString());
-            i++;
-        }
-        i = 0;
-        while (i < response.length()) {
-            Integer i2 = 0;
-            while (i2 < mids.size()) {
-                if (mids.get(i2).equals(String.valueOf(response.getJSONObject(i).getInt("mid")))) {
-                    response.remove(i);
-                }
-                i2++;
-            }
-            i++;
-        }
+        for (Integer i = 0; i < response.length(); i++)
+            for (String mid : mids)
+                if (mid.equals(String.valueOf(response.getJSONObject(i).getInt("mid")))) response.remove(i);
         return response;
     }
 
     static void SaveNewLocal(String path, String token, String id, String type) throws Exception {
-        JSONArray arr = diff(request_parse(token, id, type), file_parse(path));
+        JSONArray arr = diff(response_parse(token, id, type), file_parse(path));
         File local = new File(path, "local");
         BufferedReader bufferedReader = new BufferedReader(new FileReader(local));
         String json = bufferedReader.readLine();
         JSONObject object = new JSONObject(json);
         JSONArray array = object.getJSONArray("local");
-        Integer i = 0;
-        while (i < arr.length()) {
+        for (Integer i = 0; i < arr.length(); i++)
             array.put(arr.getJSONObject(i));
-            i++;
-        }
         object.put("local", array);
         PrintWriter printWriter = new PrintWriter(local);
         printWriter.println(object);
@@ -90,11 +77,12 @@ class OldExt {
         JSONObject obj = new JSONObject(jst);
         JSONArray array = obj.getJSONArray("local");
         File messages = new File(path, "messages");
-        if (messages.exists()) messages.delete();
-        if (!messages.exists()) messages.createNewFile();
+        if (messages.exists())
+            messages.delete();
+        if (!messages.exists())
+            messages.createNewFile();
         PrintWriter pw = new PrintWriter(messages);
-        Integer i = 0;
-        while (i < array.length()) {
+        for (Integer i = 0; i < array.length(); i++){
             boolean fwd_messages = false;
             if (array.getJSONObject(i).has("fwd_messages")) {
                 fwd_messages = true;
@@ -120,12 +108,13 @@ class OldExt {
                 printWriter.close();
             }
             Integer uid = (Integer) array.getJSONObject(i).get("uid");
-            pw.println(getUserNameById(uid));
-            if (fwd_messages) pw.println("fwd_messages: true: additions id: " + array.getJSONObject(i).get("mid"));
-            if (attachment) pw.println("attachment: true: additions id: " + array.getJSONObject(i).get("mid"));
+            pw.println(getUserNameById(uid.toString()));
+            if (fwd_messages)
+                pw.println("fwd_messages: true: additions id: " + array.getJSONObject(i).get("mid"));
+            if (attachment)
+                pw.println("attachment: true: additions id: " + array.getJSONObject(i).get("mid"));
             pw.println(array.getJSONObject(i).get("body"));
             pw.println();
-            i++;
         }
         pw.flush();
         pw.close();
