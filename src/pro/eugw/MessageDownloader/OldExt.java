@@ -6,8 +6,7 @@ import org.json.JSONObject;
 import java.io.*;
 import java.util.ArrayList;
 
-import static pro.eugw.MessageDownloader.Ext.getUserNameById;
-import static pro.eugw.MessageDownloader.Ext.get;
+import static pro.eugw.MessageDownloader.Ext.*;
 
 class OldExt {
     private static JSONArray response_parse(String token, String id, String type) throws Exception {
@@ -108,7 +107,8 @@ class OldExt {
                 printWriter.close();
             }
             Integer uid = (Integer) array.getJSONObject(i).get("uid");
-            pw.println(getUserNameById(uid.toString()));
+            Integer date = (Integer) array.getJSONObject(i).get("date");
+            pw.println(getUserNameById(uid.toString()) + " " + getUserSurnameById(uid.toString()) + " " + getDateByTime(date.toString()));
             if (fwd_messages)
                 pw.println("fwd_messages: true: additions id: " + array.getJSONObject(i).get("mid"));
             if (attachment)
