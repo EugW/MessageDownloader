@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import static pro.eugw.MessageDownloader.Ext.getConversations;
-import static pro.eugw.MessageDownloader.Ext.getUserNameByToken;
-import static pro.eugw.MessageDownloader.Ext.getUserSurnameByToken;
+import static pro.eugw.MessageDownloader.Ext.getUsernameByToken;
 import static pro.eugw.MessageDownloader.OldExt.SaveNewLocal;
 import static pro.eugw.MessageDownloader.OldExt.chat;
 
@@ -25,18 +24,18 @@ public class Main {
             list.add(properties.getProperty("token" + i));
             System.out.println("TOKEN" + i + "= " + properties.getProperty("token" + i));
         }
-        System.out.println("NEW TOKEN");
         for (String aList : list) {
+            System.out.println("NEW TOKEN");
             ArrayList<ArrayList<String>> arr = getConversations(aList);
             ArrayList<String> ld = arr.get(0);
             for (String aLd : ld) {
-                String pr = getUserNameByToken(aList) + getUserSurnameByToken(aList) + "@" + aList + File.separator + "dialogs" + File.separator + aLd;
+                String pr = getUsernameByToken(aList, "name") + getUsernameByToken(aList, "surname") + "@" + aList + File.separator + "dialogs" + File.separator + aLd;
                 SaveNewLocal(pr, aList, aLd.split("@")[0], "user");
                 chat(pr);
             }
             ArrayList<String> lc = arr.get(1);
             for (String aLc : lc) {
-                String pr = getUserNameByToken(aList) + getUserSurnameByToken(aList) + "@" + aList + File.separator + "chats" + File.separator + aLc;
+                String pr = getUsernameByToken(aList, "name") + getUsernameByToken(aList, "surname") + "@" + aList + File.separator + "chats" + File.separator + aLc;
                 SaveNewLocal(pr, aList, aLc.split("@")[0], "chat");
                 chat(pr);
             }

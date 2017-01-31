@@ -49,7 +49,8 @@ class OldExt {
             mids.add(local.getJSONObject(i).get("mid").toString());
         for (Integer i = 0; i < response.length(); i++)
             for (String mid : mids)
-                if (mid.equals(String.valueOf(response.getJSONObject(i).getInt("mid")))) response.remove(i);
+                if (mid.equals(String.valueOf(response.getJSONObject(i).getInt("mid"))))
+                    response.remove(i);
         return response;
     }
 
@@ -108,7 +109,7 @@ class OldExt {
             }
             Integer uid = (Integer) array.getJSONObject(i).get("uid");
             Integer date = (Integer) array.getJSONObject(i).get("date");
-            pw.println(getUserNameById(uid.toString()) + " " + getUserSurnameById(uid.toString()) + " " + getDateByTime(date.toString()));
+            pw.println(getUsernameById(uid.toString(), "name") + " " + getUsernameById(uid.toString(), "surname") + " " + getDateByTime(date.toString()));
             if (fwd_messages)
                 pw.println("fwd_messages: true: additions id: " + array.getJSONObject(i).get("mid"));
             if (attachment)
