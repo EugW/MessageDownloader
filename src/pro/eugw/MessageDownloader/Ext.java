@@ -1,7 +1,8 @@
 package pro.eugw.MessageDownloader;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -11,153 +12,80 @@ import java.util.Properties;
 
 class Ext {
     static ArrayList<ArrayList<String>> getConversations(String token) throws Exception {
-        JSONObject obj = new JSONObject(get("https://api.vk.com/method/messages.getDialogs?access_token=" + token + "&count=200"));
-        JSONArray arr = obj.getJSONArray("response");
+        JsonArray arr = get("messages.getDialogs", "access_token=" + token + "&count=200");
         arr.remove(0);
         ArrayList<ArrayList<String>> ar = new ArrayList<>();
         ArrayList<String> list0 = new ArrayList<>();
         ArrayList<String> list1 = new ArrayList<>();
-        for (Integer i = 0; i < arr.length(); i++){
-            if (!arr.getJSONObject(i).has("chat_id"))
-                list0.add(arr.getJSONObject(i).get("uid")
+        for (Integer i = 0; i < arr.size(); i++) {
+            if (!arr.get(i).getAsJsonObject().has("chat_id") && arr.get(i).getAsJsonObject().get("uid").getAsInt() > 0)
+                list0.add(arr.get(i).getAsJsonObject().get("uid").getAsInt()
                         + "@"
-                        + getUsernameById(arr.getJSONObject(i).get("uid").toString(), "name")
-                        + getUsernameById(arr.getJSONObject(i).get("uid").toString(), "surname"));
-            if (arr.getJSONObject(i).has("chat_id"))
-                list1.add(arr.getJSONObject(i).get("chat_id")
+                        + getUsernameById(arr.get(i).getAsJsonObject().get("uid").getAsInt()));
+            if (arr.get(i).getAsJsonObject().has("chat_id"))
+                list1.add(arr.get(i).getAsJsonObject().get("chat_id").getAsInt()
                         + "@"
-                        + arr.getJSONObject(i).get("title"));
+                        + arr.get(i).getAsJsonObject().get("title").getAsString());
         }
         ar.add(list0);
         ar.add(list1);
         return ar;
     }
 
-    static String getUsernameById(String id, String x) throws Exception {
-        switch (x){
-            case "name":{
-                File fl = new File("names.cache");
-                if (!fl.exists())
-                    fl.createNewFile();
-                FileInputStream fis = new FileInputStream(fl);
-                Properties properties = new Properties();
-                properties.load(fis);
-                if (properties.getProperty(id) == null) {
-                    JSONObject or = new JSONObject(get("https://api.vk.com/method/users.get?user_ids=" + id));
-                    JSONArray er = or.getJSONArray("response");
-                    String kek = er.getJSONObject(0).getString("first_name");
-                    FileOutputStream fos = new FileOutputStream(fl);
-                    properties.put(id, kek);
-                    properties.store(fos, "no comments");
-                    fos.flush();
-                    fos.close();
-                }
-                return properties.getProperty(id);
-            }
-            case "surname":{
-                File fl = new File("surnames.cache");
-                if (!fl.exists())
-                    fl.createNewFile();
-                FileInputStream fis = new FileInputStream(fl);
-                Properties properties = new Properties();
-                properties.load(fis);
-                if (properties.getProperty(id) == null) {
-                    JSONObject or = new JSONObject(get("https://api.vk.com/method/users.get?user_ids=" + id));
-                    JSONArray er = or.getJSONArray("response");
-                    String kek = er.getJSONObject(0).getString("last_name");
-                    FileOutputStream fos = new FileOutputStream(fl);
-                    properties.put(id, kek);
-                    properties.store(fos, "no comments");
-                    fos.flush();
-                    fos.close();
-                }
-                return properties.getProperty(id);
-            }
-        }
-        return null;
-    }
-
-    static String getUsernameByToken(String token, String x) throws Exception {
-        switch (x){
-            case "name":{
-                File fl = new File("names.cache");
-                if (!fl.exists())
-                    fl.createNewFile();
-                FileInputStream fis = new FileInputStream(fl);
-                Properties properties = new Properties();
-                properties.load(fis);
-                if (properties.getProperty(token) == null) {
-                    JSONObject or = new JSONObject(get("https://api.vk.com/method/users.get?access_token=" + token));
-                    JSONArray er = or.getJSONArray("response");
-                    String kek = er.getJSONObject(0).getString("first_name");
-                    FileOutputStream fos = new FileOutputStream(fl);
-                    properties.put(token, kek);
-                    properties.store(fos, "no comments");
-                    fos.flush();
-                    fos.close();
-                }
-                return properties.getProperty(token);
-            }
-            case "surname":{
-                File fl = new File("surnames.cache");
-                if (!fl.exists())
-                    fl.createNewFile();
-                FileInputStream fis = new FileInputStream(fl);
-                Properties properties = new Properties();
-                properties.load(fis);
-                if (properties.getProperty(token) == null) {
-                    JSONObject or = new JSONObject(get("https://api.vk.com/method/users.get?access_token=" + token));
-                    JSONArray er = or.getJSONArray("response");
-                    String kek = er.getJSONObject(0).getString("last_name");
-                    FileOutputStream fos = new FileOutputStream(fl);
-                    properties.put(token, kek);
-                    properties.store(fos, "no comments");
-                    fos.flush();
-                    fos.close();
-                }
-                return properties.getProperty(token);
-            }
-        }
-
-        return null;
-    }
-
-    static String getDateByTime(String date) throws Exception {
-        File fl = new File("dates.cache");
+    static String getUsernameById(Integer uid) throws Exception {
+        String id = uid.toString();
+        File fl = new File("names");
         if (!fl.exists())
             fl.createNewFile();
         FileInputStream fis = new FileInputStream(fl);
         Properties properties = new Properties();
         properties.load(fis);
-        if (properties.getProperty(date) == null) {
-            URL url = new URL("http://www.convert-unix-time.com/api?timestamp=" + date + "&timezone=ekaterinburg");
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            BufferedReader rd;
-            rd = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            String read = rd.readLine();
-            JSONObject or = new JSONObject(read);
-            String kek = or.getString("localDate");
+        if (properties.getProperty(id) == null) {
             FileOutputStream fos = new FileOutputStream(fl);
-            properties.put(date, kek);
-            properties.store(fos, "no comments");
+            JsonObject object = get("users.get", "user_id=" + id).get(0).getAsJsonObject();
+            properties.put(id, object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
+            properties.store(fos, "ROFL");
             fos.flush();
             fos.close();
         }
-        return properties.getProperty(date);
+        return properties.getProperty(id);
     }
 
-    static String get(String kurl) throws Exception {
+    static String getUsernameByToken(String token) throws Exception {
+        File fl = new File("names");
+        if (!fl.exists())
+            fl.createNewFile();
+        FileInputStream fis = new FileInputStream(fl);
+        Properties properties = new Properties();
+        properties.load(fis);
+        if (properties.getProperty(token) == null) {
+            FileOutputStream fos = new FileOutputStream(fl);
+            JsonObject object = get("users.get", "access_token=" + token).get(0).getAsJsonObject();
+            properties.put(token, object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
+            properties.store(fos, "ROFL");
+            fos.flush();
+            fos.close();
+        }
+        return properties.getProperty(token);
+    }
+
+    static JsonArray get(String method, String arguments) throws Exception {
         while (true) {
-            URL url = new URL(kurl);
+            URL url = new URL("https://api.vk.com/method/" + method + "?" + arguments);
+            System.out.println(url);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
-            BufferedReader rd;
-            rd = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            String read = rd.readLine();
-            JSONObject obj = new JSONObject(read);
-            if (obj.has("response"))
-                return read;
+            JsonObject object = new JsonParser().parse(new BufferedReader(new InputStreamReader(urlConnection.getInputStream())).readLine()).getAsJsonObject();
+            if (object.has("response")) {
+                if (object.get("response").isJsonArray()) {
+                    return object.getAsJsonArray("response");
+                }
+                if (object.get("response").isJsonObject()) {
+                    JsonArray jsonArray = new JsonArray();
+                    jsonArray.add(object.getAsJsonObject("response"));
+                    return jsonArray;
+                }
+            }
         }
     }
 }

@@ -7,13 +7,13 @@ import java.util.Properties;
 
 import static pro.eugw.MessageDownloader.Ext.getConversations;
 import static pro.eugw.MessageDownloader.Ext.getUsernameByToken;
-import static pro.eugw.MessageDownloader.OldExt.SaveNewLocal;
+import static pro.eugw.MessageDownloader.OldExt.saveNewLocal;
 import static pro.eugw.MessageDownloader.OldExt.chat;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         System.out.println("STARTING");
-        File config = new File("config.properties");
+        File config = new File("config");
         if (!config.exists()) config.createNewFile();
         FileInputStream fis = new FileInputStream(config);
         Properties properties = new Properties();
@@ -29,14 +29,14 @@ public class Main {
             ArrayList<ArrayList<String>> arr = getConversations(aList);
             ArrayList<String> ld = arr.get(0);
             for (String aLd : ld) {
-                String pr = getUsernameByToken(aList, "name") + getUsernameByToken(aList, "surname") + "@" + aList + File.separator + "dialogs" + File.separator + aLd;
-                SaveNewLocal(pr, aList, aLd.split("@")[0], "user");
+                String pr = getUsernameByToken(aList) + "@" + aList + File.separator + "dialogs" + File.separator + aLd;
+                saveNewLocal(pr, aList, aLd.split("@")[0], "user");
                 chat(pr);
             }
             ArrayList<String> lc = arr.get(1);
             for (String aLc : lc) {
-                String pr = getUsernameByToken(aList, "name") + getUsernameByToken(aList, "surname") + "@" + aList + File.separator + "chats" + File.separator + aLc;
-                SaveNewLocal(pr, aList, aLc.split("@")[0], "chat");
+                String pr = getUsernameByToken(aList) + "@" + aList + File.separator + "chats" + File.separator + aLc;
+                saveNewLocal(pr, aList, aLc.split("@")[0], "chat");
                 chat(pr);
             }
         }
