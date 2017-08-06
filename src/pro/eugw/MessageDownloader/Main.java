@@ -14,7 +14,19 @@ public class Main {
     public static void main(String[] args) throws Exception {
         System.out.println("STARTING");
         File config = new File("config");
-        if (!config.exists()) config.createNewFile();
+        if (!config.exists()) {
+            config.createNewFile();
+            System.out.println("CONFIG CREATED, ENTER TOKEN");
+            System.exit(0);
+        } else {
+            FileInputStream fis = new FileInputStream(config);
+            Properties properties = new Properties();
+            properties.load(fis);
+            if (properties.isEmpty()) {
+                System.out.println("CONFIG CREATED, ENTER TOKEN");
+                System.exit(0);
+            }
+        }
         FileInputStream fis = new FileInputStream(config);
         Properties properties = new Properties();
         properties.load(fis);
