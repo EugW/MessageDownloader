@@ -18,18 +18,14 @@ public class Main {
             config.createNewFile();
             System.out.println("CONFIG CREATED, ENTER TOKEN");
             System.exit(0);
-        } else {
-            FileInputStream fis = new FileInputStream(config);
-            Properties properties = new Properties();
-            properties.load(fis);
-            if (properties.isEmpty()) {
-                System.out.println("CONFIG CREATED, ENTER TOKEN");
-                System.exit(0);
-            }
         }
         FileInputStream fis = new FileInputStream(config);
         Properties properties = new Properties();
         properties.load(fis);
+        if (properties.isEmpty()) {
+            System.out.println("CONFIG CREATED, ENTER TOKEN");
+            System.exit(0);
+        }
         ArrayList<String> list = new ArrayList<>();
         System.out.println("TOKENS= " + Integer.valueOf(properties.getProperty("token.cnt")));
         for (Integer i = 1; i <= Integer.valueOf(properties.getProperty("token.cnt")); i++){
