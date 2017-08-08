@@ -25,7 +25,6 @@ class tokenParser {
             error();
         if (!properties.containsKey("token.cnt"))
             error();
-
         if (properties.getProperty("token.cnt").isEmpty() || Integer.valueOf(properties.getProperty("token.cnt")) <= 0)
             error();
         for (Integer i = 1; i <= Integer.valueOf(properties.getProperty("token.cnt")); i++){
