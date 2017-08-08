@@ -1,53 +1,44 @@
 package pro.eugw.MessageDownloader;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Properties;
+import com.google.gson.JsonArray;
 
-import static pro.eugw.MessageDownloader.Ext.getConversations;
-import static pro.eugw.MessageDownloader.Ext.getUsernameByToken;
-import static pro.eugw.MessageDownloader.OldExt.saveNewLocal;
-import static pro.eugw.MessageDownloader.OldExt.chat;
+import java.io.File;
+import java.util.ArrayList;
 
 public class Main {
+    
     public static void main(String[] args) throws Exception {
         System.out.println("STARTING");
-        File config = new File("config");
-        if (!config.exists()) {
-            config.createNewFile();
-            System.out.println("CONFIG CREATED, ENTER TOKEN");
-            System.exit(0);
-        }
-        FileInputStream fis = new FileInputStream(config);
-        Properties properties = new Properties();
-        properties.load(fis);
-        if (properties.isEmpty()) {
-            System.out.println("CONFIG CREATED, ENTER TOKEN");
-            System.exit(0);
-        }
-        ArrayList<String> list = new ArrayList<>();
-        System.out.println("TOKENS= " + Integer.valueOf(properties.getProperty("token.cnt")));
-        for (Integer i = 1; i <= Integer.valueOf(properties.getProperty("token.cnt")); i++){
-            list.add(properties.getProperty("token" + i));
-            System.out.println("TOKEN" + i + "= " + properties.getProperty("token" + i));
-        }
-        for (String aList : list) {
-            System.out.println("NEW TOKEN");
-            ArrayList<ArrayList<String>> arr = getConversations(aList);
-            ArrayList<String> ld = arr.get(0);
-            for (String aLd : ld) {
-                String pr = getUsernameByToken(aList) + "@" + aList + File.separator + "dialogs" + File.separator + aLd;
-                saveNewLocal(pr, aList, aLd.split("@")[0], "user");
-                chat(pr);
+        ArrayList<String> arrayList = new tokenParser("config").parse();
+        System.out.println("TOKENS= " + arrayList.size());
+        for (String aList : arrayList) {
+            System.out.println("NEW TOKEN= " + aList);
+            JsonArray arr = new getResponse("messages.getDialogs", "access_token=" + aList + "&count=200").get();
+            arr.remove(0);
+            ArrayList<String> list0 = new ArrayList<>();
+            ArrayList<String> list1 = new ArrayList<>();
+            for (Integer i = 0; i < arr.size(); i++) {
+                if (!arr.get(i).getAsJsonObject().has("chat_id") && arr.get(i).getAsJsonObject().get("uid").getAsInt() > 0)
+                    list0.add(arr.get(i).getAsJsonObject().get("uid").getAsInt()
+                            + "@"
+                            + new getResponse(arr.get(i).getAsJsonObject().get("uid").getAsString(), null).getNameById());
+                if (arr.get(i).getAsJsonObject().has("chat_id"))
+                    list1.add(arr.get(i).getAsJsonObject().get("chat_id").getAsInt()
+                            + "@"
+                            + arr.get(i).getAsJsonObject().get("title").getAsString());
             }
-            ArrayList<String> lc = arr.get(1);
-            for (String aLc : lc) {
-                String pr = getUsernameByToken(aList) + "@" + aList + File.separator + "chats" + File.separator + aLc;
-                saveNewLocal(pr, aList, aLc.split("@")[0], "chat");
-                chat(pr);
+            for (String aLd : list0) {
+                String pr = new getResponse(aList, null).getNameByToken() + "@" + aList + File.separator + "dialogs" + File.separator + aLd;
+                saveMessages.json(pr, aList, aLd.split("@")[0], "user");
+                saveMessages.chat(pr);
+            }
+            for (String aLc : list1) {
+                String pr = new getResponse(aList, null).getNameByToken() + "@" + aList + File.separator + "chats" + File.separator + aLc;
+                saveMessages.json(pr, aList, aLc.split("@")[0], "chat");
+                saveMessages.chat(pr);
             }
         }
         System.out.println("FINISHED");
     }
+
 }
