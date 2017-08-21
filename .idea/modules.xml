@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MessageDownloader.iml" filepath="$PROJECT_DIR$/MessageDownloader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MessageDownloader.iml" filepath="$PROJECT_DIR$/.idea/modules/MessageDownloader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MessageDownloader_main.iml" filepath="$PROJECT_DIR$/.idea/modules/MessageDownloader_main.iml" group="MessageDownloader" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MessageDownloader_test.iml" filepath="$PROJECT_DIR$/.idea/modules/MessageDownloader_test.iml" group="MessageDownloader" />
     </modules>
   </component>
 </project>
