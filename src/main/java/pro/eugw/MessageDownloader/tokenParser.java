@@ -48,6 +48,7 @@ class tokenParser {
         }
         FileWriter fileWriter = new FileWriter(config);
         properties.store(fileWriter, "TOKENS");
+        //test
         return list;
     }
 
