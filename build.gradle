@@ -1,5 +1,5 @@
 group 'pro.eugw'
-version '2.0'
+version ''
 
 apply plugin: 'java'
 
