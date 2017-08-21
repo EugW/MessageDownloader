@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class Main {
     
     public static void main(String[] args) throws Exception {
+        System.out.println("VERSION: 2.0");
         System.out.println("STARTING");
         ArrayList<String> arrayList = new tokenParser("config").parse();
         System.out.println("TOKENS= " + arrayList.size());

@@ -19,9 +19,11 @@ class saveMessages {
         File fol = new File(path);
         File local = new File(path, "local");
         if (!fol.exists())
-            fol.mkdirs();
+            if (fol.mkdirs())
+                System.out.println("CREATED " + fol);
         if (!local.exists()) {
-            local.createNewFile();
+            if (local.createNewFile())
+                System.out.println("CREATED " + local);
             Integer count = new getResponse("messages.getHistory", "access_token=" + token + "&" + type + "_id=" + id).get().get(0).getAsInt();
             JsonArray result = new JsonArray();
             for (Integer i = 0; i <= count; i = i + 200) {
@@ -84,18 +86,24 @@ class saveMessages {
         }
         File messages = new File(path, "messages");
         if (messages.exists())
-            messages.delete();
+            if (messages.delete())
+                System.out.println("DELETED " + messages);
         if (!messages.exists())
-            messages.createNewFile();
+            if (messages.createNewFile())
+                System.out.println("CREATED " + messages);
         PrintWriter pw = new PrintWriter(messages);
         for (Integer i = 0; i < array.size(); i++) {
             boolean fwd_messages = false;
             if (array.get(i).getAsJsonObject().has("fwd_messages")) {
                 fwd_messages = true;
                 File dir = new File(path, "additions");
-                if (!dir.exists()) dir.mkdirs();
+                if (!dir.exists())
+                    if (dir.mkdirs())
+                        System.out.println("CREATED " + dir);
                 File fl = new File(path, "additions" + File.separator + array.get(i).getAsJsonObject().get("mid"));
-                if (!fl.exists()) fl.createNewFile();
+                if (!fl.exists())
+                    if (fl.createNewFile())
+                        System.out.println("CREATED " + fl);
                 PrintWriter printWriter = new PrintWriter(fl);
                 printWriter.println(array.get(i).getAsJsonObject().get("fwd_messages"));
                 printWriter.flush();
@@ -105,9 +113,13 @@ class saveMessages {
             if (array.get(i).getAsJsonObject().has("attachment")) {
                 attachment = true;
                 File dir = new File(path, "additions");
-                if (!dir.exists()) dir.mkdirs();
+                if (!dir.exists())
+                    if (dir.mkdirs())
+                        System.out.println("CREATED " + dir);
                 File fl = new File(path, "additions" + File.separator + array.get(i).getAsJsonObject().get("mid"));
-                if (!fl.exists()) fl.createNewFile();
+                if (!fl.exists())
+                    if (fl.createNewFile())
+                        System.out.println("CREATED " + fl);
                 PrintWriter printWriter = new PrintWriter(fl);
                 printWriter.println(array.get(i).getAsJsonObject().get("attachment"));
                 printWriter.flush();

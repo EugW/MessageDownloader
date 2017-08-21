@@ -43,7 +43,8 @@ class getResponse {
         String id = this.method;
         File fl = new File("names");
         if (!fl.exists())
-            fl.createNewFile();
+            if (fl.createNewFile())
+                System.out.println("CREATED " + fl);
         FileInputStream fis = new FileInputStream(fl);
         Properties properties = new Properties();
         properties.load(fis);
@@ -62,7 +63,8 @@ class getResponse {
         String token = this.method;
         File fl = new File("names");
         if (!fl.exists())
-            fl.createNewFile();
+            if (fl.createNewFile())
+                System.out.println("CREATED " + fl);
         FileInputStream fis = new FileInputStream(fl);
         Properties properties = new Properties();
         properties.load(fis);

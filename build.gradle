@@ -1,5 +1,5 @@
 group 'pro.eugw'
-version '1.0-SNAPSHOT'
+version '2.0'
 
 apply plugin: 'java'
 
