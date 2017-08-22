@@ -36,6 +36,13 @@ class getResponse {
                     return jsonArray;
                 }
             }
+            if (object.has("error")) {
+                if (object.get("error").getAsJsonObject().get("error_code").getAsInt() != 6) {
+                    System.out.println("ERROR CODE: " + object.get("error").getAsJsonObject().get("error_code"));
+                    System.out.println("FIND IT ON THIS PAGE: https://vk.com/dev/errors");
+                    System.exit(0);
+                }
+            }
         }
     }
 

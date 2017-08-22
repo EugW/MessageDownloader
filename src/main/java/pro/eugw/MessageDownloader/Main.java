@@ -5,10 +5,12 @@ import com.google.gson.JsonArray;
 import java.io.File;
 import java.util.ArrayList;
 
+import static pro.eugw.MessageDownloader.ConfigClass.getConfig;
+
 public class Main {
     
     public static void main(String[] args) throws Exception {
-        System.out.println("VERSION: 2.0");
+        System.out.println("VERSION: " + getConfig().getProperty("version"));
         System.out.println("STARTING");
         ArrayList<String> arrayList = new tokenParser("config").parse();
         System.out.println("TOKENS= " + arrayList.size());

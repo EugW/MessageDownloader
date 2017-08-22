@@ -4,13 +4,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+
+import static pro.eugw.MessageDownloader.ConfigClass.getConfig;
 
 class saveMessages {
 
@@ -85,55 +89,68 @@ class saveMessages {
             array.add(array0.get(i));
         }
         File messages = new File(path, "messages");
-        if (messages.exists())
-            if (messages.delete())
-                System.out.println("DELETED " + messages);
         if (!messages.exists())
             if (messages.createNewFile())
                 System.out.println("CREATED " + messages);
         PrintWriter pw = new PrintWriter(messages);
         for (Integer i = 0; i < array.size(); i++) {
             boolean fwd_messages = false;
-            if (array.get(i).getAsJsonObject().has("fwd_messages")) {
+            if (array.get(i).getAsJsonObject().has("fwd_messages"))
                 fwd_messages = true;
-                File dir = new File(path, "additions");
-                if (!dir.exists())
-                    if (dir.mkdirs())
-                        System.out.println("CREATED " + dir);
-                File fl = new File(path, "additions" + File.separator + array.get(i).getAsJsonObject().get("mid"));
-                if (!fl.exists())
-                    if (fl.createNewFile())
-                        System.out.println("CREATED " + fl);
-                PrintWriter printWriter = new PrintWriter(fl);
-                printWriter.println(array.get(i).getAsJsonObject().get("fwd_messages"));
-                printWriter.flush();
-                printWriter.close();
-            }
-            boolean attachment = false;
-            if (array.get(i).getAsJsonObject().has("attachment")) {
-                attachment = true;
-                File dir = new File(path, "additions");
-                if (!dir.exists())
-                    if (dir.mkdirs())
-                        System.out.println("CREATED " + dir);
-                File fl = new File(path, "additions" + File.separator + array.get(i).getAsJsonObject().get("mid"));
-                if (!fl.exists())
-                    if (fl.createNewFile())
-                        System.out.println("CREATED " + fl);
-                PrintWriter printWriter = new PrintWriter(fl);
-                printWriter.println(array.get(i).getAsJsonObject().get("attachment"));
-                printWriter.flush();
-                printWriter.close();
+            boolean attachments = false;
+            if (array.get(i).getAsJsonObject().has("attachments")) {
+                attachments = true;
             }
             String uid = array.get(i).getAsJsonObject().get("uid").getAsString();
             Integer date = array.get(i).getAsJsonObject().get("date").getAsInt();
             String name = new getResponse(uid, null).getNameById();
             pw.println(name + " " + new Date(date * 1000L));
-            if (fwd_messages)
-                pw.println("fwd_messages: true: additions id: " + array.get(i).getAsJsonObject().get("mid"));
-            if (attachment)
-                pw.println("attachment: true: additions id: " + array.get(i).getAsJsonObject().get("mid"));
-            pw.println(array.get(i).getAsJsonObject().get("body").getAsString());
+            if (fwd_messages) {
+                pw.println("fwd_messages:{");
+                for (JsonElement element : array.get(i).getAsJsonObject().get("fwd_messages").getAsJsonArray()) {
+                    pw.println(" " + new getResponse(element.getAsJsonObject().get("uid").getAsString(), null).getNameById() + " " + new Date(element.getAsJsonObject().get("date").getAsInt() * 1000L));
+                    if (!element.getAsJsonObject().get("body").getAsString().isEmpty())
+                        pw.println(" " + element.getAsJsonObject().get("body").getAsString());
+                    if (element.getAsJsonObject().has("fwd_messages"))
+                        pw.println(" RECURSIVE FORWARDED MESSAGES ARE NOT SUPPORTED YET");
+                }
+                pw.println("}");
+            }
+            if (attachments) {
+                pw.println("attachments:{");
+                for (JsonElement element : array.get(i).getAsJsonObject().get("attachments").getAsJsonArray()) {
+                    String type = element.getAsJsonObject().get("type").getAsString();
+                    pw.println(" TYPE: " + type.toUpperCase());
+                    switch (type) {
+                        case "doc":
+                            URL udoc = new URL(element.getAsJsonObject().get("doc").getAsJsonObject().get("url").getAsString());
+                            pw.println(" LINK: " + udoc);
+                            File fdoc = new File(path + File.separator + "downloaded", element.getAsJsonObject().get("doc").getAsJsonObject().get("title").getAsString());
+                            if (getConfig().get("auto-download") == "true") {
+                                FileUtils.copyURLToFile(udoc, fdoc);
+                                pw.println(" LOCAL LINK: " + fdoc);
+                            }
+                            pw.println(" TITLE: " + element.getAsJsonObject().get("doc").getAsJsonObject().get("title").getAsString());
+                            break;
+                        case "photo":
+                            URL uph = new URL(element.getAsJsonObject().get("photo").getAsJsonObject().get("src").getAsString());
+                            pw.println(" LINK: " + uph);
+                            File fph = new File(path + File.separator + "downloaded", element.getAsJsonObject().get("photo").getAsJsonObject().get("src").getAsString().split("/")[6]);
+                            if (getConfig().get("auto-download") == "true") {
+                                FileUtils.copyURLToFile(uph, fph);
+                                pw.println(" LOCAL LINK: " + fph);
+                            }
+                            pw.println(" TITLE: " + element.getAsJsonObject().get("photo").getAsJsonObject().get("src").getAsString().split("/")[6]);
+                            break;
+                        default:
+                            pw.println(" UNSUPPORTED TYPE OF ATTACHMENT");
+                            break;
+                    }
+                }
+                pw.println("}");
+            }
+            if (!array.get(i).getAsJsonObject().get("body").getAsString().isEmpty())
+                pw.println(array.get(i).getAsJsonObject().get("body").getAsString());
             pw.println();
         }
         pw.flush();
