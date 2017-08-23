@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Scanner;
 
+import static pro.eugw.MessageDownloader.Miscellaneous.log;
+
 class tokenParser {
     
     private File file = null;
     
-    tokenParser(String path) {
-        this.file = new File(path);
+    tokenParser(String file) {
+        this.file = new File(file);
     }
     
     ArrayList<String> parse() throws Exception {
@@ -20,26 +22,26 @@ class tokenParser {
         File config = this.file;
         if (!config.exists())
             if (config.createNewFile())
-                System.out.println("CONFIG CREATED");
+                log().info("CONFIG CREATED");
         FileInputStream fis = new FileInputStream(config);
         Properties properties = new Properties();
         properties.load(fis);
         Scanner scanner = new Scanner(System.in);
         if (!properties.containsKey("token.cnt")) {
-            System.out.print("ENTER TOKENS COUNT (INTEGER): ");
+            log().info("ENTER TOKENS COUNT (INTEGER): ");
             Integer cnt = scanner.nextInt();
             properties.setProperty("token.cnt", String.valueOf(cnt));
         }
         if (Integer.valueOf(properties.getProperty("token.cnt")) <= 0) {
-            System.out.println("TOKENS COUNT <= 0");
+            log().error("TOKENS COUNT <= 0");
             System.exit(0);
         }
         for (Integer i = 1; i <= Integer.valueOf(properties.getProperty("token.cnt")); i++){
             if (!properties.containsKey("token" + i)) {
-                System.out.print("ENTER TOKEN " + i + ": ");
+                log().info("ENTER TOKEN " + i + ": ");
                 String tkn = scanner.next();
                 if (tkn.length() < 85 || tkn.length() > 85) {
-                    System.out.println("TOKEN IS TOO LONG OR TOO SHORT. TRY AGAIN");
+                    log().error("TOKEN IS TOO LONG OR TOO SHORT. TRY AGAIN");
                     System.exit(0);
                 }
                 properties.setProperty("token" + i, tkn);

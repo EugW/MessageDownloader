@@ -13,8 +13,10 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
-import static pro.eugw.MessageDownloader.ConfigClass.getConfig;
+import static pro.eugw.MessageDownloader.Miscellaneous.getConfig;
+import static pro.eugw.MessageDownloader.Miscellaneous.log;
 
 class saveMessages {
 
@@ -24,10 +26,10 @@ class saveMessages {
         File local = new File(path, "local");
         if (!fol.exists())
             if (fol.mkdirs())
-                System.out.println("CREATED " + fol);
+                log().debug("CREATED " + fol);
         if (!local.exists()) {
             if (local.createNewFile())
-                System.out.println("CREATED " + local);
+                log().debug("CREATED " + local);
             Integer count = new getResponse("messages.getHistory", "access_token=" + token + "&" + type + "_id=" + id).get().get(0).getAsInt();
             JsonArray result = new JsonArray();
             for (Integer i = 0; i <= count; i = i + 200) {
@@ -76,6 +78,7 @@ class saveMessages {
         printWriter.println(obj);
         printWriter.flush();
         printWriter.close();
+        log().debug("FINISHED WRITING TO LOCAL JSON");
     }
 
     static void chat(String path) throws Exception {
@@ -91,21 +94,14 @@ class saveMessages {
         File messages = new File(path, "messages");
         if (!messages.exists())
             if (messages.createNewFile())
-                System.out.println("CREATED " + messages);
+                log().debug("CREATED " + messages);
         PrintWriter pw = new PrintWriter(messages);
         for (Integer i = 0; i < array.size(); i++) {
-            boolean fwd_messages = false;
-            if (array.get(i).getAsJsonObject().has("fwd_messages"))
-                fwd_messages = true;
-            boolean attachments = false;
-            if (array.get(i).getAsJsonObject().has("attachments")) {
-                attachments = true;
-            }
             String uid = array.get(i).getAsJsonObject().get("uid").getAsString();
             Integer date = array.get(i).getAsJsonObject().get("date").getAsInt();
             String name = new getResponse(uid, null).getNameById();
             pw.println(name + " " + new Date(date * 1000L));
-            if (fwd_messages) {
+            if (array.get(i).getAsJsonObject().has("fwd_messages")) {
                 pw.println("fwd_messages:{");
                 for (JsonElement element : array.get(i).getAsJsonObject().get("fwd_messages").getAsJsonArray()) {
                     pw.println(" " + new getResponse(element.getAsJsonObject().get("uid").getAsString(), null).getNameById() + " " + new Date(element.getAsJsonObject().get("date").getAsInt() * 1000L));
@@ -116,19 +112,19 @@ class saveMessages {
                 }
                 pw.println("}");
             }
-            if (attachments) {
+            if (array.get(i).getAsJsonObject().has("attachments")) {
                 pw.println("attachments:{");
                 for (JsonElement element : array.get(i).getAsJsonObject().get("attachments").getAsJsonArray()) {
                     String type = element.getAsJsonObject().get("type").getAsString();
                     pw.println(" TYPE: " + type.toUpperCase());
                     switch (type) {
                         case "doc":
-                            URL udoc = new URL(element.getAsJsonObject().get("doc").getAsJsonObject().get("url").getAsString());
-                            pw.println(" LINK: " + udoc);
-                            File fdoc = new File(path + File.separator + "downloaded", element.getAsJsonObject().get("doc").getAsJsonObject().get("title").getAsString());
-                            if (getConfig().get("auto-download") == "true") {
-                                FileUtils.copyURLToFile(udoc, fdoc);
-                                pw.println(" LOCAL LINK: " + fdoc);
+                            URL url_doc = new URL(element.getAsJsonObject().get("doc").getAsJsonObject().get("url").getAsString());
+                            pw.println(" LINK: " + url_doc);
+                            File file_doc = new File(path + File.separator + "downloaded", element.getAsJsonObject().get("doc").getAsJsonObject().get("title").getAsString());
+                            if (Objects.equals(getConfig().getProperty("autoDownload"), "true")) {
+                                FileUtils.copyURLToFile(url_doc, file_doc);
+                                pw.println(" LOCAL LINK: " + file_doc);
                             }
                             pw.println(" TITLE: " + element.getAsJsonObject().get("doc").getAsJsonObject().get("title").getAsString());
                             break;
@@ -136,7 +132,7 @@ class saveMessages {
                             URL uph = new URL(element.getAsJsonObject().get("photo").getAsJsonObject().get("src").getAsString());
                             pw.println(" LINK: " + uph);
                             File fph = new File(path + File.separator + "downloaded", element.getAsJsonObject().get("photo").getAsJsonObject().get("src").getAsString().split("/")[6]);
-                            if (getConfig().get("auto-download") == "true") {
+                            if (Objects.equals(getConfig().getProperty("autoDownload"), "true")) {
                                 FileUtils.copyURLToFile(uph, fph);
                                 pw.println(" LOCAL LINK: " + fph);
                             }
@@ -155,6 +151,7 @@ class saveMessages {
         }
         pw.flush();
         pw.close();
+        log().debug("FINISHED WRITING TO LOCAL READABLE TEXT");
     }
 
 }
