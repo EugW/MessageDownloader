@@ -3,15 +3,19 @@ package pro.eugw.MessageDownloader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Objects;
 import java.util.Properties;
 
-import static pro.eugw.MessageDownloader.Miscellaneous.log;
 import static pro.eugw.MessageDownloader.Miscellaneous.getConfig;
+import static pro.eugw.MessageDownloader.Miscellaneous.log;
 
 class getResponse {
 
@@ -30,11 +34,14 @@ class getResponse {
             Integer maxTries = Integer.valueOf(getConfig().getProperty("getMaxTries"));
             while (true) {
                 try {
-                    URL url = new URL("https://api.vk.com/method/" + this.method + "?" + this.arguments + "&lang=en");
-                    log().debug(url.toString());
-                    URLConnection urlConnection = url.openConnection();
-                    urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36");
-                    object = new JsonParser().parse(new BufferedReader(new InputStreamReader(urlConnection.getInputStream())).readLine()).getAsJsonObject();
+                    HttpClient httpClient = HttpClients.createMinimal();
+                    HttpGet request = new HttpGet("https://api.vk.com/method/" + this.method + "?" + this.arguments + "&lang=en");
+                    log().debug(request.getURI());
+                    request.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36");
+                    HttpResponse response = httpClient.execute(request);
+                    log().debug("RESPONSE CODE: " + response.getStatusLine().getStatusCode());
+                    object = new JsonParser().parse(new BufferedReader(new InputStreamReader(response.getEntity().getContent())).readLine()).getAsJsonObject();
+                    System.out.println(object);
                     break;
                 } catch (Exception e) {
                     tries++;
