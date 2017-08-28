@@ -97,14 +97,14 @@ class saveMessages {
                 log().debug("CREATED " + messages);
         PrintWriter pw = new PrintWriter(messages);
         for (Integer i = 0; i < array.size(); i++) {
-            String uid = array.get(i).getAsJsonObject().get("uid").getAsString();
+            Integer uid = array.get(i).getAsJsonObject().get("uid").getAsInt();
             Integer date = array.get(i).getAsJsonObject().get("date").getAsInt();
-            String name = new getResponse(uid, null).getNameById();
+            String name = new getResponse(uid).getNameById();
             pw.println(name + " " + new Date(date * 1000L));
             if (array.get(i).getAsJsonObject().has("fwd_messages")) {
                 pw.println("fwd_messages:{");
                 for (JsonElement element : array.get(i).getAsJsonObject().get("fwd_messages").getAsJsonArray()) {
-                    pw.println(" " + new getResponse(element.getAsJsonObject().get("uid").getAsString(), null).getNameById() + " " + new Date(element.getAsJsonObject().get("date").getAsInt() * 1000L));
+                    pw.println(" " + new getResponse(element.getAsJsonObject().get("uid").getAsInt()).getNameById() + " " + new Date(element.getAsJsonObject().get("date").getAsInt() * 1000L));
                     if (!element.getAsJsonObject().get("body").getAsString().isEmpty())
                         pw.println(" " + element.getAsJsonObject().get("body").getAsString());
                     if (element.getAsJsonObject().has("fwd_messages"))

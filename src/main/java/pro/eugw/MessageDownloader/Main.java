@@ -27,7 +27,7 @@ public class Main {
                 if (!arr.get(i).getAsJsonObject().has("chat_id") && arr.get(i).getAsJsonObject().get("uid").getAsInt() > 0)
                     list0.add(arr.get(i).getAsJsonObject().get("uid").getAsInt()
                             + "@"
-                            + new getResponse(arr.get(i).getAsJsonObject().get("uid").getAsString(), null).getNameById());
+                            + new getResponse(arr.get(i).getAsJsonObject().get("uid").getAsInt()).getNameById());
                 if (arr.get(i).getAsJsonObject().has("chat_id"))
                     list1.add(arr.get(i).getAsJsonObject().get("chat_id").getAsInt()
                             + "@"
@@ -37,7 +37,7 @@ public class Main {
             for (String aLd : list0) {
                 Runnable task = () -> {
                     try {
-                        String pr = new getResponse(aList, null).getNameByToken() + "@" + aList + File.separator + "dialogs" + File.separator + aLd;
+                        String pr = new getResponse(aList).getNameByToken() + "@" + aList + File.separator + "dialogs" + File.separator + aLd;
                         saveMessages.json(pr, aList, aLd.split("@")[0], "user");
                         saveMessages.chat(pr);
                     } catch (Exception e) {
@@ -53,7 +53,7 @@ public class Main {
             for (String aLc : list1) {
                 Runnable task = () -> {
                     try {
-                        String pr = new getResponse(aList, null).getNameByToken() + "@" + aList + File.separator + "chats" + File.separator + aLc;
+                        String pr = new getResponse(aList).getNameByToken() + "@" + aList + File.separator + "chats" + File.separator + aLc;
                         saveMessages.json(pr, aList, aLc.split("@")[0], "chat");
                         saveMessages.chat(pr);
                     } catch (Exception e) {

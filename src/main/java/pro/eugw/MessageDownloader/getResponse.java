@@ -5,8 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 
@@ -19,12 +17,22 @@ import static pro.eugw.MessageDownloader.Miscellaneous.log;
 
 class getResponse {
 
-    private String method = "";
-    private String arguments = "";
+    private String method;
+    private String arguments;
+    private Integer id;
+    private String token;
 
     getResponse(String method, String arguments) {
         this.method = method;
         this.arguments = arguments;
+    }
+
+    getResponse(Integer id) {
+        this.id = id;
+    }
+
+    getResponse(String token) {
+        this.token = token;
     }
 
     JsonArray get() {
@@ -71,7 +79,6 @@ class getResponse {
     }
 
     String getNameById() throws Exception {
-        String id = this.method;
         File fl = new File("names");
         if (!fl.exists())
             if (fl.createNewFile())
@@ -79,24 +86,23 @@ class getResponse {
         FileInputStream fis = new FileInputStream(fl);
         Properties properties = new Properties();
         properties.load(fis);
-        if (properties.getProperty(id) == null) {
+        if (properties.getProperty(String.valueOf(this.id)) == null) {
             FileOutputStream fos = new FileOutputStream(fl);
             this.method = "users.get";
-            this.arguments = "user_id=" + id;
-            if (Integer.valueOf(id) < 0) {
-                this.arguments = "user_id=" + id.replace("-", "1");
+            this.arguments = "user_id=" + this.id;
+            if (this.id < 0) {
+                this.arguments = "user_id=" + this.id * -1;
             }
             JsonObject object = get().get(0).getAsJsonObject();
-            properties.put(id, object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
+            properties.put(this.id, object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
             properties.store(fos, "ROFL");
             fos.flush();
             fos.close();
         }
-        return properties.getProperty(id);
+        return properties.getProperty(String.valueOf(id));
     }
 
     String getNameByToken() throws Exception {
-        String token = this.method;
         File fl = new File("names");
         if (!fl.exists())
             if (fl.createNewFile())
@@ -104,17 +110,17 @@ class getResponse {
         FileInputStream fis = new FileInputStream(fl);
         Properties properties = new Properties();
         properties.load(fis);
-        if (properties.getProperty(token) == null) {
+        if (properties.getProperty(this.token) == null) {
             FileOutputStream fos = new FileOutputStream(fl);
             this.method = "users.get";
-            this.arguments = "access_token=" + token;
+            this.arguments = "access_token=" + this.token;
             JsonObject object = get().get(0).getAsJsonObject();
-            properties.put(token, object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
+            properties.put(this.token, object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
             properties.store(fos, "ROFL");
             fos.flush();
             fos.close();
         }
-        return properties.getProperty(token);
+        return properties.getProperty(this.token);
     }
 
 
