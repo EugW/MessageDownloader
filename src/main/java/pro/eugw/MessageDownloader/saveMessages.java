@@ -5,6 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
+import pro.eugw.MessageDownloader.Attachments.Audio;
+import pro.eugw.MessageDownloader.Attachments.Doc;
+import pro.eugw.MessageDownloader.Attachments.Photo;
+import pro.eugw.MessageDownloader.Attachments.Video;
+import sun.swing.FilePane;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -118,28 +123,67 @@ class saveMessages {
                     String type = element.getAsJsonObject().get("type").getAsString();
                     pw.println(" TYPE: " + type.toUpperCase());
                     switch (type) {
-                        case "doc":
-                            URL url_doc = new URL(element.getAsJsonObject().get("doc").getAsJsonObject().get("url").getAsString());
-                            pw.println(" LINK: " + url_doc);
-                            File file_doc = new File(path + File.separator + "downloaded", element.getAsJsonObject().get("doc").getAsJsonObject().get("title").getAsString());
+                        case "photo":
+                            Photo photo = new Photo(element.getAsJsonObject().get("photo").getAsJsonObject());
+                            pw.println(" PHOTO ID: " + photo.getPid());
+                            pw.println(" OWNER: " + photo.getOwner_id());
+                            pw.println(" PHOTO TITLE: " + photo.getSrc().split("/")[6]);
+                            URL url_photo = new URL(photo.getSrc());
+                            pw.println(" LINK: " + url_photo);
                             if (Objects.equals(getConfig().getProperty("autoDownload"), "true")) {
+                                File file_photo = new File(path + File.separator + "downloaded", photo.getSrc().split("/")[6]);
+                                FileUtils.copyURLToFile(url_photo, file_photo);
+                                pw.println(" LOCAL LINK: " + file_photo);
+                            }
+                            break;
+                        case "video":
+                            Video video = new Video(element.getAsJsonObject().get("video").getAsJsonObject());
+                            pw.println(" VIDEO ID: " + video.getVid());
+                            pw.println(" VIDEO VIEWS: " + video.getViews());
+                            pw.println(" OWNER: " + video.getOwner_id());
+                            pw.println(" VIDEO TITLE: " + video.getTitle());
+                            if (Objects.equals(getConfig().getProperty("autoDownload"), "true")) {
+                                File video_preview = new File(path + File.separator + "downloaded", video.getTitle());
+                                FileUtils.copyURLToFile(new URL(video.getImage()), video_preview);
+                                pw.println(" VIDEO PREVIEW: " + video_preview);
+                            }
+                            pw.println(" VIDEO DURATION: " + video.getDuration());
+                            pw.println(" VIDEO DESCRIPTION: " + video.getDescription());
+                            pw.println(" VIDEO DATE: " + new Date(video.getDate() * 1000L));
+
+                            break;
+                        case "audio":
+                            Audio audio = new Audio(element.getAsJsonObject().get("audio").getAsJsonObject());
+                            pw.println(" AUDIO ID: " + audio.getAid());
+                            pw.println(" OWNER: " + audio.getOwner_id());
+                            pw.println(" AUDIO TITLE: " + audio.getTitle());
+                            URL url_audio = new URL(audio.getUrl());
+                            pw.println(" LINK: " + url_audio);
+                            if (Objects.equals(getConfig().getProperty("autoDownload"), "true")) {
+                                File file_audio = new File(path + File.separator + "downloaded", audio.getTitle());
+                                FileUtils.copyURLToFile(url_audio, file_audio);
+                                pw.println(" LOCAL LINK: " + file_audio);
+                            }
+                            pw.println(" AUDIO DURATION: " + audio.getDuration());
+                            pw.println(" AUDIO ARTIST: " + audio.getPerformer());
+                            break;
+                        case "doc":
+                            Doc doc = new Doc(element.getAsJsonObject().get("doc").getAsJsonObject());
+                            pw.println(" DOC ID: " + doc.getDid());
+                            pw.println(" OWNER: " + doc.getOwner_id());
+                            pw.println(" DOC TITLE: " + doc.getTitle());
+                            URL url_doc = new URL(doc.getUrl());
+                            pw.println(" LINK: " + url_doc);
+                            if (Objects.equals(getConfig().getProperty("autoDownload"), "true")) {
+                                File file_doc = new File(path + File.separator + "downloaded", doc.getTitle());
                                 FileUtils.copyURLToFile(url_doc, file_doc);
                                 pw.println(" LOCAL LINK: " + file_doc);
                             }
-                            pw.println(" TITLE: " + element.getAsJsonObject().get("doc").getAsJsonObject().get("title").getAsString());
+                            pw.println(" DOC SIZE: " + doc.getSize());
+                            pw.println(" DOC EXTENSION: " + doc.getExt());
                             break;
-                        case "photo":
-                            URL uph = new URL(element.getAsJsonObject().get("photo").getAsJsonObject().get("src").getAsString());
-                            pw.println(" LINK: " + uph);
-                            File fph = new File(path + File.separator + "downloaded", element.getAsJsonObject().get("photo").getAsJsonObject().get("src").getAsString().split("/")[6]);
-                            if (Objects.equals(getConfig().getProperty("autoDownload"), "true")) {
-                                FileUtils.copyURLToFile(uph, fph);
-                                pw.println(" LOCAL LINK: " + fph);
-                            }
-                            pw.println(" TITLE: " + element.getAsJsonObject().get("photo").getAsJsonObject().get("src").getAsString().split("/")[6]);
-                            break;
-                        default:
-                            pw.println(" UNSUPPORTED TYPE OF ATTACHMENT");
+                        case "wall":
+                            pw.println(" WALL NOT SUPPORTED YET");
                             break;
                     }
                 }

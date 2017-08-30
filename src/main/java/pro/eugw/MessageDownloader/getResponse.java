@@ -49,7 +49,6 @@ class getResponse {
                     HttpResponse response = httpClient.execute(request);
                     log().debug("RESPONSE CODE: " + response.getStatusLine().getStatusCode());
                     object = new JsonParser().parse(new BufferedReader(new InputStreamReader(response.getEntity().getContent())).readLine()).getAsJsonObject();
-                    System.out.println(object);
                     break;
                 } catch (Exception e) {
                     tries++;
@@ -94,7 +93,7 @@ class getResponse {
                 this.arguments = "user_id=" + this.id * -1;
             }
             JsonObject object = get().get(0).getAsJsonObject();
-            properties.put(this.id, object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
+            properties.put(String.valueOf(this.id), object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
             properties.store(fos, "ROFL");
             fos.flush();
             fos.close();
