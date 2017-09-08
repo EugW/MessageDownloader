@@ -87,7 +87,7 @@ public class Main {
             }
             Thread.sleep(1000);
         } while (alive);
-        log().info("FINISHED");
+        log().info("FINISHET");
     }
 
 }
