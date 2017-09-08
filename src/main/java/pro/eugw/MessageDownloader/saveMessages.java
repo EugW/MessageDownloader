@@ -9,7 +9,6 @@ import pro.eugw.MessageDownloader.Attachments.Audio;
 import pro.eugw.MessageDownloader.Attachments.Doc;
 import pro.eugw.MessageDownloader.Attachments.Photo;
 import pro.eugw.MessageDownloader.Attachments.Video;
-import sun.swing.FilePane;
 
 import java.io.BufferedReader;
 import java.io.File;
