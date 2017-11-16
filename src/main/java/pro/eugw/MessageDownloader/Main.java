@@ -10,15 +10,15 @@ import static pro.eugw.MessageDownloader.Miscellaneous.getConfig;
 import static pro.eugw.MessageDownloader.Miscellaneous.log;
 
 public class Main {
-    
-    public static void main(String[] args) throws Exception {
-        log().info("VERSION: " + getConfig().getProperty("version"));
-        log().info("STARTING");
+
+    private Main() {
+        log().info("Version: " + getConfig().getProperty("version"));
+        log().info("Starting...");
         ArrayList<String> arrayList = new tokenParser("config").parse();
-        log().info("TOKENS= " + arrayList.size());
+        log().info("Tokens count: " + arrayList.size());
         ArrayList<Thread> workers = new ArrayList<>();
         for (String aList : arrayList) {
-            log().info("NEW TOKEN= " + aList);
+            log().info("New token: " + aList);
             JsonArray arr = new getResponse("messages.getDialogs", "access_token=" + aList + "&count=200").get();
             arr.remove(0);
             ArrayList<String> list0 = new ArrayList<>();
@@ -33,7 +33,7 @@ public class Main {
                             + "@"
                             + arr.get(i).getAsJsonObject().get("title").getAsString());
             }
-            final Integer[] badChat = {0};
+            Integer[] badChat = {0};
             for (String aLd : list0) {
                 Runnable task = () -> {
                     try {
@@ -41,7 +41,8 @@ public class Main {
                         saveMessages.json(pr, aList, aLd.split("@")[0], "user");
                         saveMessages.chat(pr);
                     } catch (Exception e) {
-                        log().error("THIS CHAT CAN NOT BE DOWNLOADED");
+                        log().error("This chat cannot be downloaded");
+                        e.printStackTrace();
                         badChat[0]++;
                     }
                 };
@@ -57,7 +58,8 @@ public class Main {
                         saveMessages.json(pr, aList, aLc.split("@")[0], "chat");
                         saveMessages.chat(pr);
                     } catch (Exception e) {
-                        log().error("THIS CHAT CAN NOT BE DOWNLOADED");
+                        log().error("This chat cannot be downloaded");
+                        e.printStackTrace();
                         badChat[0]++;
                     }
                 };
@@ -67,7 +69,7 @@ public class Main {
                 workers.add(worker);
             }
         }
-        log().info("FINISHED CREATING THREADS");
+        log().info("Finished starting threads");
         boolean alive;
         String prev = "";
         do {
@@ -85,9 +87,17 @@ public class Main {
                 log().info(now);
                 prev = now;
             }
-            Thread.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } while (alive);
-        log().info("FINISHED");
+        log().info("Finished");
+    }
+
+    public static void main(String[] args) {
+        new Main();
     }
 
 }

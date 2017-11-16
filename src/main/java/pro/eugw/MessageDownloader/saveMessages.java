@@ -30,10 +30,10 @@ class saveMessages {
         File local = new File(path, "local");
         if (!fol.exists())
             if (fol.mkdirs())
-                log().debug("CREATED " + fol);
+                log().debug("Created " + fol);
         if (!local.exists()) {
             if (local.createNewFile())
-                log().debug("CREATED " + local);
+                log().debug("Created " + local);
             Integer count = new getResponse("messages.getHistory", "access_token=" + token + "&" + type + "_id=" + id).get().get(0).getAsInt();
             JsonArray result = new JsonArray();
             for (Integer i = 0; i <= count; i = i + 200) {
@@ -82,7 +82,7 @@ class saveMessages {
         printWriter.println(obj);
         printWriter.flush();
         printWriter.close();
-        log().debug("FINISHED WRITING TO LOCAL JSON");
+        log().debug("Finished writing to local json");
     }
 
     static void chat(String path) throws Exception {
@@ -98,7 +98,7 @@ class saveMessages {
         File messages = new File(path, "messages");
         if (!messages.exists())
             if (messages.createNewFile())
-                log().debug("CREATED " + messages);
+                log().debug("Created " + messages);
         PrintWriter pw = new PrintWriter(messages);
         for (Integer i = 0; i < array.size(); i++) {
             Integer uid = array.get(i).getAsJsonObject().get("uid").getAsInt();
@@ -112,7 +112,7 @@ class saveMessages {
                     if (!element.getAsJsonObject().get("body").getAsString().isEmpty())
                         pw.println(" " + element.getAsJsonObject().get("body").getAsString());
                     if (element.getAsJsonObject().has("fwd_messages"))
-                        pw.println(" RECURSIVE FORWARDED MESSAGES ARE NOT SUPPORTED YET");
+                        pw.println(" Recursive forwarded messages are not supported yet");
                 }
                 pw.println("}");
             }
@@ -194,7 +194,7 @@ class saveMessages {
         }
         pw.flush();
         pw.close();
-        log().debug("FINISHED WRITING TO LOCAL READABLE TEXT");
+        log().debug("Finished writing to local readable text");
     }
 
 }

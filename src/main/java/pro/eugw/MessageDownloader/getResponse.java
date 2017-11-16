@@ -69,55 +69,79 @@ class getResponse {
             }
             if (object.has("error")) {
                 if (object.get("error").getAsJsonObject().get("error_code").getAsInt() != 6) {
-                    log().error("ERROR CODE: " + object.get("error").getAsJsonObject().get("error_code"));
-                    log().error("FIND IT ON THIS PAGE: https://vk.com/dev/errors");
+                    log().error("Error code: " + object.get("error").getAsJsonObject().get("error_code"));
+                    log().error("Find it on this page: https://vk.com/dev/errors");
                     System.exit(0);
                 }
             }
         }
     }
 
-    String getNameById() throws Exception {
+    String getNameById() {
         File fl = new File("names");
-        if (!fl.exists())
-            if (fl.createNewFile())
-                log().debug("CREATED " + fl);
-        FileInputStream fis = new FileInputStream(fl);
+        try {
+            if (!fl.exists())
+                if (fl.createNewFile())
+                    log().debug("Created " + fl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Properties properties = new Properties();
-        properties.load(fis);
+        try {
+            FileInputStream fis = new FileInputStream(fl);
+            properties.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (properties.getProperty(String.valueOf(this.id)) == null) {
-            FileOutputStream fos = new FileOutputStream(fl);
-            this.method = "users.get";
-            this.arguments = "user_id=" + this.id;
-            if (this.id < 0) {
-                this.arguments = "user_id=" + this.id * -1;
+            try {
+                FileOutputStream fos = new FileOutputStream(fl);
+                this.method = "users.get";
+                this.arguments = "user_id=" + this.id;
+                if (this.id < 0) {
+                    this.arguments = "user_id=" + this.id * -1;
+                }
+                JsonObject object = get().get(0).getAsJsonObject();
+                properties.put(String.valueOf(this.id), object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
+                properties.store(fos, "ROFL");
+                fos.flush();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            JsonObject object = get().get(0).getAsJsonObject();
-            properties.put(String.valueOf(this.id), object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
-            properties.store(fos, "ROFL");
-            fos.flush();
-            fos.close();
         }
         return properties.getProperty(String.valueOf(id));
     }
 
-    String getNameByToken() throws Exception {
+    String getNameByToken() {
         File fl = new File("names");
-        if (!fl.exists())
-            if (fl.createNewFile())
-                log().debug("CREATED " + fl);
-        FileInputStream fis = new FileInputStream(fl);
+        try {
+            if (!fl.exists())
+                if (fl.createNewFile())
+                    log().debug("CREATED " + fl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Properties properties = new Properties();
-        properties.load(fis);
+        try {
+            FileInputStream fis = new FileInputStream(fl);
+            properties.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (properties.getProperty(this.token) == null) {
-            FileOutputStream fos = new FileOutputStream(fl);
-            this.method = "users.get";
-            this.arguments = "access_token=" + this.token;
-            JsonObject object = get().get(0).getAsJsonObject();
-            properties.put(this.token, object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
-            properties.store(fos, "ROFL");
-            fos.flush();
-            fos.close();
+            try {
+                FileOutputStream fos = new FileOutputStream(fl);
+                this.method = "users.get";
+                this.arguments = "access_token=" + this.token;
+                JsonObject object = get().get(0).getAsJsonObject();
+                properties.put(this.token, object.get("first_name").getAsString() + " " + object.get("last_name").getAsString());
+                properties.store(fos, "ROFL");
+                fos.flush();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return properties.getProperty(this.token);
     }

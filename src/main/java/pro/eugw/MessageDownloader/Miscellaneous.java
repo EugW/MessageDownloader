@@ -9,39 +9,32 @@ import java.util.Properties;
 class Miscellaneous {
 
     static Properties getConfig() {
-        File file = new File("iCon");
-        if (!file.exists()) {
-            Properties properties = new Properties();
+        File fProp = new File("md.properties");
+        if (!fProp.exists()) {
             try {
-                if (file.createNewFile())
-                    log().debug("CREATED " + file);
-                properties.load(ClassLoader.getSystemResourceAsStream("icon.properties"));
-            } catch (IOException e) {
-                log().error("CANNOT CREATE iCon");
-            }
-            Properties lProp = new Properties();
-            FileInputStream fileInputStream;
-            try {
-                fileInputStream = new FileInputStream(file);
-                lProp.load(fileInputStream);
-                lProp.setProperty("autoDownload", properties.getProperty("autoDownload"));
-                lProp.setProperty("getMaxTries", properties.getProperty("getMaxTries"));
-                FileWriter fileWriter = new FileWriter(file);
-                lProp.store(fileWriter, "iCon");
-            } catch (FileNotFoundException e) {
-                log().error("CANNOT FIND iCon");
-            } catch (IOException e) {
-                log().error("CANNOT READ iCon");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("md.properties")));
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fProp)));
+                String rd;
+                while ((rd = reader.readLine()) != null) {
+                    writer.write(rd);
+                    writer.newLine();
+                }
+                reader.close();
+                writer.flush();
+                writer.close();
+            } catch (Exception e) {
+                log().error("Error while initializing configuration");
+                e.printStackTrace();
+                System.exit(0);
             }
         }
         Properties properties = new Properties();
         try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            properties.load(fileInputStream);
-        } catch (FileNotFoundException e) {
-            log().error("CANNOT FIND iCon");
+            properties.load(new FileInputStream(fProp));
         } catch (IOException e) {
-            log().error("CANNOT READ iCon");
+            log().error("Cannot read " + fProp);
+            e.printStackTrace();
+            System.exit(0);
         }
         return properties;
     }
